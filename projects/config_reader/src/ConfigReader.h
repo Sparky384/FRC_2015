@@ -19,7 +19,7 @@ public:
 	static ConfigReader* getInstance();
 	~ConfigReader();
 
-	int	getIntValue(string key);
+	int getIntValue(string key);
 	float getFloatValue(string key);
 	string getStringValue(string key);
 
