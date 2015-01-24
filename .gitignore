@@ -1,1 +1,9 @@
+# Windows files
+Thumbs.db
+*.lnk
+
+# Eclipse files
 Debug/
+*.o
+*.exe
+*.out
