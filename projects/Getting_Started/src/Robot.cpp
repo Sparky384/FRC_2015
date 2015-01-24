@@ -9,7 +9,11 @@ class Robot: public IterativeRobot
 	LiveWindow *lw;
 	int autoLoopCounter;
 	float prevAngle;
+	float prevLeftEnc;
+	float prevRightEnc;
 	Compressor *compressor;
+	Encoder *encLeft;
+	Encoder *encRight;
 	//AnalogInput *rateGyro;
 	//AnalogInput *rateGyroTemp;
 
@@ -27,6 +31,9 @@ class Robot: public IterativeRobot
 		doubleSolenoid = new DoubleSolenoid(0,1);
 		//rateGyro = new AnalogInput(0);
 		//rateGyroTemp = new AnalogInput(1);
+		encLeft = new Encoder(0,1,false,Encoder::EncodingType::k4X);
+		encRight = new Encoder(2,3,false,Encoder::EncodingType::k4X);
+
 	}
 
 	private:
@@ -64,6 +71,9 @@ class Robot: public IterativeRobot
 	void TeleopPeriodic()
 	{
 		float currAngle;
+		float currLeftEnc;
+		float currRightEnc;
+
 		myRobot.ArcadeDrive(stick); // drive with arcade style (use right stick)
 		//rateGyro->GetVoltage();
 		//rateGyroTemp->GetVoltage();
@@ -72,6 +82,15 @@ class Robot: public IterativeRobot
 			printf("gyro angle = %f, %f, %f\n", currAngle, prevAngle, fabs(currAngle - prevAngle));
 		}
 		prevAngle = currAngle;
+		currLeftEnc = encLeft->GetRate();
+		currRightEnc= encRight->GetRate();
+		if( fabs(currLeftEnc - prevLeftEnc) + fabs(currRightEnc - prevRightEnc) > 0.01) {
+			printf("Left Encoder = %f\n", currLeftEnc);
+			printf("Right Encoder = %f\n", currRightEnc);
+		}
+
+		prevLeftEnc = currLeftEnc;
+		prevRightEnc = currRightEnc;
 
 		if( stick.GetRawButton(1)) {
 			printf("Button 1 pressed\n");
