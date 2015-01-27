@@ -7,6 +7,8 @@ class Robot: public IterativeRobot
 	Joystick stick; // only joystick
 	DoubleSolenoid *doubleSolenoid;
 	LiveWindow *lw;
+	Relay *relay1;
+
 	int autoLoopCounter;
 	float prevAngle;
 	float prevLeftEnc;
@@ -32,7 +34,8 @@ class Robot: public IterativeRobot
 		//rateGyro = new AnalogInput(0);
 		//rateGyroTemp = new AnalogInput(1);
 		encLeft = new Encoder(0,1,false,Encoder::EncodingType::k4X);
-		encRight = new Encoder(2,3,false,Encoder::EncodingType::k4X);
+		encRight = new Encoder(2,3,true,Encoder::EncodingType::k4X);
+		relay1 = new Relay(1);
 
 	}
 
@@ -95,13 +98,25 @@ class Robot: public IterativeRobot
 		if( stick.GetRawButton(1)) {
 			printf("Button 1 pressed\n");
 			doubleSolenoid->Set(DoubleSolenoid::kForward);
-			Wait(0.5);
+			Wait(0.05);
 			doubleSolenoid->Set(DoubleSolenoid::kOff);
 		} else if(stick.GetRawButton(2)) {
 			printf("Button 2 pressed\n");
 			doubleSolenoid->Set(DoubleSolenoid::kReverse);
-			Wait(0.5);
+			Wait(0.05);
 			doubleSolenoid->Set(DoubleSolenoid::kOff);
+		}
+
+		if(stick.GetRawButton(4)){
+			printf("Button 4 pressed\n");
+			if (relay1->Get() != Relay::kForward){
+				relay1->Set(Relay::kForward);
+			} else {
+				relay1->Set(Relay::kReverse);
+
+			}
+			Wait(0.05);
+
 		}
 	}
 
