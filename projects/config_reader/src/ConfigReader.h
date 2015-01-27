@@ -16,7 +16,7 @@ using namespace std;
 class ConfigReader {
 public:
 	// make the implementation of this class a singleton
-	static ConfigReader* getInstance();
+	static ConfigReader* getInstance(string filename="config.txt");
 	~ConfigReader();
 
 	int getIntValue(string key);
@@ -24,7 +24,7 @@ public:
 	string getStringValue(string key);
 
 private:
-	ConfigReader();
+	ConfigReader(string filename="config.txt");
 	static ConfigReader* instance;
 
 	map<string, string>* keyValueMap;
