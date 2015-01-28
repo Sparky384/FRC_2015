@@ -1,5 +1,5 @@
 #include "WPILib.h"
-#include "Command1.h"
+#include "Commands/Command1.h"
 
 class Robot: public IterativeRobot
 {
@@ -40,8 +40,10 @@ class Robot: public IterativeRobot
 		encRight = new Encoder(2,3,true,Encoder::EncodingType::k4X);
 		relay1 = new Relay(1);
 		command1 = new Command1(doubleSolenoid);
-		button1 = new JoystickButton(stick,1);
-		button1->ToggleWhenPressed(command1);
+		button1 = new JoystickButton(&stick, 1);
+
+		button1->WhenPressed(command1);
+
 	}
 
 	private:

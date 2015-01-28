@@ -16,7 +16,7 @@ void Command1::Initialize()
 // Called repeatedly when this Command is scheduled to run
 void Command1::Execute()
 {
-	printf("Button 1 pressed\n");
+	printf("Command1::Execute(), Button 1 pressed\n");
 	doubleSolenoid->Set(DoubleSolenoid::kForward);
 	Wait(0.05);
 	doubleSolenoid->Set(DoubleSolenoid::kOff);
