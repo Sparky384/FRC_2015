@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "Commands/ExtendRightWiper.h"
+#include "Commands/RetractRightWiper.h"
 
 class Robot: public IterativeRobot
 {
@@ -11,6 +12,7 @@ class Robot: public IterativeRobot
 	Relay *relay1;
 	//Command1 *command1;
 	JoystickButton * button1;
+	JoystickButton * button2;
 
 	int autoLoopCounter;
 	float prevAngle;
@@ -41,9 +43,12 @@ class Robot: public IterativeRobot
 		relay1 = new Relay(1);
 		//command1 = new Command1(doubleSolenoid);
 		button1 = new JoystickButton(&stick, 1);
+		button2 = new JoystickButton(&stick, 2);
 
 		button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
-		//button1->
+
+		button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
+
 
 	}
 
@@ -111,12 +116,12 @@ class Robot: public IterativeRobot
 			Wait(0.05);
 			doubleSolenoid->Set(DoubleSolenoid::kOff);
 		} else */
-		if(stick.GetRawButton(2)) {
+	/*	if(stick.GetRawButton(2)) {
 			printf("Button 2 pressed\n");
 			doubleSolenoid->Set(DoubleSolenoid::kReverse);
 			Wait(0.05);
 			doubleSolenoid->Set(DoubleSolenoid::kOff);
-		}
+		}  */
 
 		if(stick.GetRawButton(4)){
 			printf("Button 4 pressed\n");

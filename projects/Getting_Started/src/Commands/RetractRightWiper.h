@@ -1,13 +1,13 @@
-#ifndef ExtendRightWiper_H
-#define ExtendRightWiper_H
+#ifndef RetractRightWiper_H
+#define RetractRightWiper_H
 
 //#include "../CommandBase.h"
 #include "WPILib.h"
 
-class ExtendRightWiper: public Command
+class RetractRightWiper: public Command
 {
 public:
-	ExtendRightWiper(DoubleSolenoid *doubleSolenoid);
+	RetractRightWiper(DoubleSolenoid *doubleSolenoid);
 	void Initialize();
 	void Execute();
 	bool IsFinished();
@@ -18,6 +18,7 @@ private:
 	DoubleSolenoid *doubleSolenoid;
 	bool activated;
 };
+
 
 
 #endif
