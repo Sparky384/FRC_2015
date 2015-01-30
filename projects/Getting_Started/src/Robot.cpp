@@ -11,8 +11,8 @@ class Robot: public IterativeRobot
 	LiveWindow *lw;
 	Relay *relay1;
 	//Command1 *command1;
-	JoystickButton * button1;
-	JoystickButton * button2;
+	JoystickButton *button1;
+	JoystickButton *button2;
 
 	int autoLoopCounter;
 	float prevAngle;
@@ -46,9 +46,7 @@ class Robot: public IterativeRobot
 		button2 = new JoystickButton(&stick, 2);
 
 		button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
-
 		button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
-
 
 	}
 

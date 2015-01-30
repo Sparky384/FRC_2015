@@ -22,7 +22,6 @@ void ExtendRightWiper::Execute()
 	Wait(0.05);
 	doubleSolenoid->Set(DoubleSolenoid::kOff);
 	activated=true;
-
 }
 
 // Make this return true when this Command no longer needs to run execute()

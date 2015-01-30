@@ -19,11 +19,10 @@ void RetractRightWiper::Initialize()
 void RetractRightWiper::Execute()
 {
 	printf("RetractRightWiper::Execute(), Button 2 pressed\n");
-	doubleSolenoid->Set(DoubleSolenoid::kForward);
+	doubleSolenoid->Set(DoubleSolenoid::kReverse);
 	Wait(0.05);
 	doubleSolenoid->Set(DoubleSolenoid::kOff);
 	activated=true;
-
 }
 
 // Make this return true when this Command no longer needs to run execute()
