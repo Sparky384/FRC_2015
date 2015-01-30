@@ -14,8 +14,8 @@
 
 ConfigReader* ConfigReader::instance = 0;
 
-ConfigReader::ConfigReader() {
-	ifstream inFile("config.txt");
+ConfigReader::ConfigReader(string filename) {
+	ifstream inFile(filename.c_str());
 	keyValueMap = new std::map<string, string>;
 
 	string line;
@@ -33,11 +33,11 @@ ConfigReader::ConfigReader() {
 	}
 }
 
-ConfigReader* ConfigReader::getInstance(){
+ConfigReader* ConfigReader::getInstance(string filename){
 
 	if(instance == 0){
 		// create the singleton instance of this class
-		instance = new ConfigReader();
+		instance = new ConfigReader(filename);
 	}
 
 	return instance;
