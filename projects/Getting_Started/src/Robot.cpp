@@ -18,6 +18,8 @@ class Robot: public IterativeRobot
 	float prevAngle;
 	float prevLeftEnc;
 	float prevRightEnc;
+	float autoDistCounter;
+	float autoGyroAngle;
 	Compressor *compressor;
 	Encoder *encLeft;
 	Encoder *encRight;
@@ -40,8 +42,8 @@ class Robot: public IterativeRobot
 		//rateGyroTemp = new AnalogInput(1);
 		encLeft = new Encoder(0,1,false,Encoder::EncodingType::k4X);
 		encRight = new Encoder(2,3,true,Encoder::EncodingType::k4X);
-		encLeft->SetDistancePerPulse(0.03488);
-		encRight->SetDistancePerPulse(0.03488);
+		encLeft->SetDistancePerPulse(4.0*3.14159/388.0); // 4" diameter wheel * PI / 360 pulses/rotation
+		encRight->SetDistancePerPulse(4.0*3.14159/388.0);
 		relay1 = new Relay(1);
 		//command1 = new Command1(doubleSolenoid);
 		button1 = new JoystickButton(&stick, 1);
@@ -62,7 +64,12 @@ class Robot: public IterativeRobot
 	void AutonomousInit()
 	{
 		autoLoopCounter = 0;
+		autoDistCounter = 0;
+		autoGyroAngle = 0;
 		encRight->Reset();
+		encLeft->Reset();
+		rateGyro->Reset();
+
 		//printf("Hello 812!");
 
 
@@ -70,11 +77,15 @@ class Robot: public IterativeRobot
 
 	void AutonomousPeriodic()
 	{
-		if(encRight->GetDistance() < 12.5 * 4.) //Check if we've completed 100 loops (approximately 2 seconds)
+		autoDistCounter = encRight->GetDistance();
+		autoGyroAngle = rateGyro->GetAngle();
+
+		if(autoDistCounter < 12.0*4.0*3.14159) // 4 rotations * 4" diameter wheel * PI
 		{
-			myRobot.Drive(-0.2, 0.0); 	// drive forwards half speed
-			autoLoopCounter++;
-			printf("Current Distance=%f\n",encRight->GetDistance() );
+		//	printf("Current Distance=%f, gyro angle=%f\n",autoDistCounter,autoGyroAngle );
+			printf("%f,%f\n",autoDistCounter,autoGyroAngle );
+
+			myRobot.Drive(-0.3, -autoGyroAngle * 1.2); 	// drive forwards half speed
 		}
 		else
 		{
@@ -86,6 +97,9 @@ class Robot: public IterativeRobot
 	void TeleopInit()
 	{
 		printf("Team 812 - Tally Ho! You're in control.\n");
+		encRight->Reset();
+		encLeft->Reset();
+		rateGyro->Reset();
 	}
 
 	void TeleopPeriodic()
