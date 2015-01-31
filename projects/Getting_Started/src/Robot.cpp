@@ -40,6 +40,8 @@ class Robot: public IterativeRobot
 		//rateGyroTemp = new AnalogInput(1);
 		encLeft = new Encoder(0,1,false,Encoder::EncodingType::k4X);
 		encRight = new Encoder(2,3,true,Encoder::EncodingType::k4X);
+		encLeft->SetDistancePerPulse(0.03488);
+		encRight->SetDistancePerPulse(0.03488);
 		relay1 = new Relay(1);
 		//command1 = new Command1(doubleSolenoid);
 		button1 = new JoystickButton(&stick, 1);
@@ -60,21 +62,25 @@ class Robot: public IterativeRobot
 	void AutonomousInit()
 	{
 		autoLoopCounter = 0;
+		encRight->Reset();
 		//printf("Hello 812!");
+
 
 	}
 
 	void AutonomousPeriodic()
 	{
-		if(autoLoopCounter < 100) //Check if we've completed 100 loops (approximately 2 seconds)
+		if(encRight->GetDistance() < 12.5 * 4.) //Check if we've completed 100 loops (approximately 2 seconds)
 		{
-			myRobot.Drive(-0.5, 0.0); 	// drive forwards half speed
+			myRobot.Drive(-0.2, 0.0); 	// drive forwards half speed
 			autoLoopCounter++;
+			printf("Current Distance=%f\n",encRight->GetDistance() );
 		}
 		else
 		{
 			myRobot.Drive(0.0, 0.0); 	// stop robot
 		}
+
 	}
 
 	void TeleopInit()
@@ -96,8 +102,8 @@ class Robot: public IterativeRobot
 			printf("gyro angle = %f, %f, %f\n", currAngle, prevAngle, fabs(currAngle - prevAngle));
 		}
 		prevAngle = currAngle;
-		currLeftEnc = encLeft->GetRate();
-		currRightEnc= encRight->GetRate();
+		currLeftEnc = encLeft->GetDistance();
+		currRightEnc= encRight->GetDistance();
 		if( fabs(currLeftEnc - prevLeftEnc) + fabs(currRightEnc - prevRightEnc) > 0.01) {
 			printf("Left Encoder = %f\n", currLeftEnc);
 			printf("Right Encoder = %f\n", currRightEnc);
@@ -120,7 +126,10 @@ class Robot: public IterativeRobot
 			Wait(0.05);
 			doubleSolenoid->Set(DoubleSolenoid::kOff);
 		}  */
-
+		if(stick.GetRawButton(10)) {
+			encLeft->Reset();
+			encRight->Reset();
+		}
 		if(stick.GetRawButton(4)){
 			printf("Button 4 pressed\n");
 			if (relay1->Get() != Relay::kForward){
