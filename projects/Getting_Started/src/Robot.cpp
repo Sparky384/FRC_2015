@@ -6,6 +6,8 @@ class Robot: public IterativeRobot
 {
 	Gyro *rateGyro;
 	RobotDrive myRobot; // robot drive system
+	//Jaguar elevatorMotorA;
+	//Jaguar elevatorMotorB;
 	Joystick stick; // only joystick
 	DoubleSolenoid *doubleSolenoid;
 	LiveWindow *lw;
@@ -13,9 +15,11 @@ class Robot: public IterativeRobot
 	//Command1 *command1;
 	JoystickButton *button1;
 	JoystickButton *button2;
+	AnalogInput *elevatorPot;
 
 	int autoLoopCounter;
 	float prevAngle;
+	float prevPot;
 	float prevLeftEnc;
 	float prevRightEnc;
 	float autoDistCounter;
@@ -29,6 +33,8 @@ class Robot: public IterativeRobot
 	public:
 	Robot() :
 		myRobot(0, 1, 2, 3),	// these must be initialized in the same order
+		//elevatorMotorA (5),
+		//elevatorMotorB (6),
 		stick(1),		// as they are declared above.
 		lw(NULL),
 		autoLoopCounter(0)
@@ -45,6 +51,7 @@ class Robot: public IterativeRobot
 		encLeft->SetDistancePerPulse(4.0*3.14159/388.0); // 4" diameter wheel * PI / 360 pulses/rotation
 		encRight->SetDistancePerPulse(4.0*3.14159/388.0);
 		relay1 = new Relay(1);
+		elevatorPot = new AnalogInput(2);
 		//command1 = new Command1(doubleSolenoid);
 		button1 = new JoystickButton(&stick, 1);
 		button2 = new JoystickButton(&stick, 2);
@@ -58,7 +65,7 @@ class Robot: public IterativeRobot
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
-		printf("Team 812 - It's alive!\n");
+		printf("Team 812 - It's alive! 2015-02-02\n");
 	}
 
 	void AutonomousInit()
@@ -80,7 +87,7 @@ class Robot: public IterativeRobot
 		autoDistCounter = encRight->GetDistance();
 		autoGyroAngle = rateGyro->GetAngle();
 
-		if(autoDistCounter < 12.0*4.0*3.14159) // 4 rotations * 4" diameter wheel * PI
+		if(autoDistCounter < 12.0*4.0*3.14159) // 12 rotations * 4" diameter wheel * PI
 		{
 		//	printf("Current Distance=%f, gyro angle=%f\n",autoDistCounter,autoGyroAngle );
 			printf("%f,%f\n",autoDistCounter,autoGyroAngle );
@@ -107,14 +114,22 @@ class Robot: public IterativeRobot
 		float currAngle;
 		float currLeftEnc;
 		float currRightEnc;
+		float currPot;
 
 		myRobot.ArcadeDrive(stick); // drive with arcade style (use right stick)
 		//rateGyro->GetVoltage();
 		//rateGyroTemp->GetVoltage();
 		currAngle = rateGyro->GetAngle();
+		currPot = elevatorPot->GetAverageVoltage();
 		if( fabs(currAngle - prevAngle) > 0.01) {
 			printf("gyro angle = %f, %f, %f\n", currAngle, prevAngle, fabs(currAngle - prevAngle));
 		}
+		if(fabs(currPot - prevPot) > 0.01)
+		{
+			printf("pot reading: %f, %d\n", elevatorPot->GetAverageVoltage(), elevatorPot->GetAverageValue());
+		}
+
+		prevPot = currPot;
 		prevAngle = currAngle;
 		currLeftEnc = encLeft->GetDistance();
 		currRightEnc= encRight->GetDistance();
