@@ -120,26 +120,25 @@ class Robot: public IterativeRobot
 		//rateGyro->GetVoltage();
 		//rateGyroTemp->GetVoltage();
 		currAngle = rateGyro->GetAngle();
-		currPot = elevatorPot->GetAverageVoltage();
-		if( fabs(currAngle - prevAngle) > 0.01) {
+		if( fabs(currAngle - prevAngle) > 0.05) {
 			printf("gyro angle = %f, %f, %f\n", currAngle, prevAngle, fabs(currAngle - prevAngle));
+			prevAngle = currAngle;
 		}
+		currPot = elevatorPot->GetAverageVoltage();
 		if(fabs(currPot - prevPot) > 0.01)
 		{
-			printf("pot reading: %f, %d\n", elevatorPot->GetAverageVoltage(), elevatorPot->GetAverageValue());
+			printf("pot reading: %f, %d\n", currPot, elevatorPot->GetAverageValue());
+			prevPot = currPot;
 		}
 
-		prevPot = currPot;
-		prevAngle = currAngle;
 		currLeftEnc = encLeft->GetDistance();
 		currRightEnc= encRight->GetDistance();
 		if( fabs(currLeftEnc - prevLeftEnc) + fabs(currRightEnc - prevRightEnc) > 0.01) {
 			printf("Left Encoder = %f\n", currLeftEnc);
 			printf("Right Encoder = %f\n", currRightEnc);
+			prevLeftEnc = currLeftEnc;
+			prevRightEnc = currRightEnc;
 		}
-
-		prevLeftEnc = currLeftEnc;
-		prevRightEnc = currRightEnc;
 
 		Scheduler::GetInstance()->Run();
 
