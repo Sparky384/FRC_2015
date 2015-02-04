@@ -41,6 +41,14 @@ class Robot: public IterativeRobot
 	{
 		myRobot.SetExpiration(0.1);
 		//myRobot.SetInvertedMotor(MotorType::)
+
+		// This code enables the USB Microsoft Camera display.
+		// You must pick "USB Camera HW" on the Driverstation Dashboard
+		// the name of the camera "cam1" can be found in the RoboRio web dashboard
+		CameraServer::GetInstance()->SetQuality(90);
+		CameraServer::GetInstance()->SetSize(2);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+
 		compressor = new Compressor();
 		rateGyro = new Gyro(0);
 		doubleSolenoid = new DoubleSolenoid(0,1);
