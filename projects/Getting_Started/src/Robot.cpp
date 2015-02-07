@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "Commands/ExtendRightWiper.h"
 #include "Commands/RetractRightWiper.h"
+#include "Utilities.h"
 
 class Robot: public IterativeRobot {
 	Gyro *rateGyro;
@@ -25,6 +26,7 @@ class Robot: public IterativeRobot {
 	float prevLeftEnc;
 	float prevRightEnc;
 	float autoDistCounter;
+	float autoMaxDistance;
 	float autoGyroAngle;
 	bool b[7];
 	int wiperState = 0;
@@ -88,6 +90,7 @@ private:
 	void AutonomousInit() {
 		autoLoopCounter = 0;
 		autoDistCounter = 0;
+		autoMaxDistance = 12.0 * 4.0 * 3.14159;  // 12 rotations * 4" diameter wheel * PI
 		autoGyroAngle = 0;
 		encRight->Reset();
 		encLeft->Reset();
@@ -98,15 +101,17 @@ private:
 	}
 
 	void AutonomousPeriodic() {
+		double robotDriveCurve;
 		autoDistCounter = encRight->GetDistance();
 		autoGyroAngle = rateGyro->GetAngle();
+		robotDriveCurve = PwmLimit(-autoGyroAngle * 1.2);
 
-		if (autoDistCounter < 12.0 * 4.0 * 3.14159) // 12 rotations * 4" diameter wheel * PI
+		if (autoDistCounter <= autoMaxDistance)
 				{
 			//	printf("Current Distance=%f, gyro angle=%f\n",autoDistCounter,autoGyroAngle );
-			printf("%f,%f\n", autoDistCounter, autoGyroAngle);
+			printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, autoMaxDistance);
 
-			myRobot.Drive(-0.3, -autoGyroAngle * 1.2); // drive forwards half speed
+			myRobot.Drive(-0.3, robotDriveCurve); // drive forwards half speed
 		} else {
 			myRobot.Drive(0.0, 0.0); 	// stop robot
 		}
