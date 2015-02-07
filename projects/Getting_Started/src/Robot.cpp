@@ -96,26 +96,44 @@ private:
 		encLeft->Reset();
 		rateGyro->Reset();
 
+		for (int i = 1; i <= 7; i++) {
+			b[i] = controlBox.GetRawButton(i);
+			printf("button[%d] = %s\n", i, b[i] ? "true":"false");
+		}
+
 		//printf("Hello 812!");
 
 	}
 
 	void AutonomousPeriodic() {
 		double robotDriveCurve;
-		autoDistCounter = encRight->GetDistance();
-		autoGyroAngle = rateGyro->GetAngle();
-		robotDriveCurve = PwmLimit(-autoGyroAngle * 1.2);
+		if(autoLoopCounter++ < 1000) {
+			if(!b[4]) {
+				autoDistCounter = encRight->GetDistance();
+				autoGyroAngle = rateGyro->GetAngle();
+				robotDriveCurve = PwmLimit(-autoGyroAngle * 1.2);
 
-		if (autoDistCounter <= autoMaxDistance)
+				if (-autoDistCounter <= 24.0 )
 				{
-			//	printf("Current Distance=%f, gyro angle=%f\n",autoDistCounter,autoGyroAngle );
-			printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, autoMaxDistance);
+					printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, autoMaxDistance);
 
-			myRobot.Drive(-0.3, robotDriveCurve); // drive forwards half speed
-		} else {
-			myRobot.Drive(0.0, 0.0); 	// stop robot
+					myRobot.Drive(0.35, robotDriveCurve); // drive forwards half speed
+					Wait(0.02);
+				} else {
+					if (autoGyroAngle > -90.0) {
+						printf("Try turning left\n");
+						myRobot.Drive(0.1, -1.0);
+					} else {
+						myRobot.Drive(0.0, 0.0); 	// stop robot
+						printf("Robot stopped\n");
+					}
+				}
+			} else {
+				printf("Autonomous mode is OFF\n");
+				Wait(3.0);
+			}
 		}
-
+		myRobot.Drive(0.0, 0.0);
 	}
 
 	void TeleopInit() {
