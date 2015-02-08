@@ -2,8 +2,8 @@
 #include "Commands/ExtendRightWiper.h"
 #include "Commands/RetractRightWiper.h"
 #include "Utilities.h"
-
 #include "RobotDefinitions.h"
+#include "ElevatorController.h"
 
 class Robot: public IterativeRobot {
 	Gyro *rateGyro;
@@ -23,7 +23,7 @@ class Robot: public IterativeRobot {
 	AnalogPotentiometer *elevatorPot;
 	AnalogInput *elevatorVertPotInput;
 	AnalogInput *elevatorHorizPotInput;
-
+	ElevatorController *elevatorController;
 
 	int autoLoopCounter;
 	float prevAngle;
@@ -85,6 +85,10 @@ public:
 
 		//button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
+
+		// fill in horizontal relay variable when available
+		elevatorController = new ElevatorController(elevatorVertPotInput, elevatorHorizPotInput,
+													elevatorMotorA, elevatorMotorB, (Relay*)NULL);
 	}
 
 private:
