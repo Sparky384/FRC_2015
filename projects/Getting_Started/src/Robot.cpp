@@ -61,10 +61,7 @@ public:
 		// You must pick "USB Camera HW" on the Driverstation Dashboard
 		// the name of the camera "cam1" can be found in the RoboRio web dashboard
 		CameraServer::GetInstance()->SetQuality(90);
-
-		// commenting this call because it does not appear to be defined
-		//CameraServer::GetInstance()->SetSize(2);
-
+		CameraServer::GetInstance()->SetSize(2);
 		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		compressor = new Compressor();
@@ -188,6 +185,7 @@ private:
 		}
 
 		Scheduler::GetInstance()->Run();
+
 		for (int i = 1; i <= 7; i++) {
 			b[i] = controlBox.GetRawButton(i);
 		}
