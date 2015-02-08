@@ -46,14 +46,15 @@ public:
 				REAR_LEFT_MOTOR_CHANNEL,
 				FRONT_RIGHT_MOTOR_CHANNEL,
 				REAR_RIGHT_MOTOR_CHANNEL),	// these must be initialized in the same order
-
-		stick(LEFT_JOYSTICK_USB_PORT),		// as they are declared above.
+											// as they are declared above.
+		elevatorMotorA(ELEVATOR_MOTOR_CHANNEL_A),
+		elevatorMotorB(ELEVATOR_MOTOR_CHANNEL_B),
+		stick(LEFT_JOYSTICK_USB_PORT),
+		controlBox(CONTROL_BOX_USB_PORT),
 		lw(NULL),
-		autoLoopCounter(0),
-			// old way of initializing: myRobot(0, 1, 2, 3),// these must be initialized in the same order
-			elevatorMotorA(5), elevatorMotorB(6), //stick(1),	// as they are declared above.
-			controlBox(2)//, lw(NULL)//, autoLoopCounter(0)
+		autoLoopCounter(0)
 		{
+
 		myRobot.SetExpiration(0.1);
 		//myRobot.SetInvertedMotor(MotorType::)
 
@@ -66,24 +67,24 @@ public:
 
 		compressor = new Compressor();
 		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);
-		//doubleSolenoid = new DoubleSolenoid(RIGHT_WIPER_SOLENOID_FWD_CHANNEL, RIGHT_WIPER_SOLENOID_REV_CHANNEL);
-		dsLeft = new DoubleSolenoid(0,1);
-		dsRight = new DoubleSolenoid(2,3);
-		encLeft = new Encoder(0, 1, false, Encoder::EncodingType::k4X);
-		encRight = new Encoder(2, 3, true, Encoder::EncodingType::k4X);
+		dsLeft = new DoubleSolenoid(LEFT_WIPER_SOLENOID_FWD_CHANNEL, LEFT_WIPER_SOLENOID_REV_CHANNEL);
+		dsRight = new DoubleSolenoid(RIGHT_WIPER_SOLENOID_FWD_CHANNEL, RIGHT_WIPER_SOLENOID_REV_CHANNEL);
+		encLeft = new Encoder(LEFT_WHEEL_ENCODER_CHANNEL_A, LEFT_WHEEL_ENCODER_CHANNEL_B,
+								false, Encoder::EncodingType::k4X);
+		encRight = new Encoder(RIGHT_WHEEL_ENCODER_CHANNEL_A, RIGHT_WHEEL_ENCODER_CHANNEL_B,
+								true, Encoder::EncodingType::k4X);
 		encLeft->SetDistancePerPulse(4.0 * 3.14159 / 388.0); // 4" diameter wheel * PI / 360 pulses/rotation
 		encRight->SetDistancePerPulse(4.0 * 3.14159 / 388.0);
 		relay1 = new Relay(1);
 
-		elevatorVertPotInput = new AnalogInput(ELEVATOR_VERT_POTENTIOMETER_CHANNEL);
-		elevatorHorizPotInput = new AnalogInput(ELEVATOR_HORIZ_POTENTIOMETER_CHANNEL);
+		elevatorVertPotInput = new AnalogInput(ELEVATOR_VERT_INPUT_CHANNEL);
+		elevatorHorizPotInput = new AnalogInput(ELEVATOR_HORIZ_INPUT_CHANNEL);
 
 		button1 = new JoystickButton(&stick, 1);
 		button2 = new JoystickButton(&stick, 2);
 
 		//button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
-
 	}
 
 private:
