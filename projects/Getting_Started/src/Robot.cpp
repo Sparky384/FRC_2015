@@ -8,8 +8,8 @@
 class Robot: public IterativeRobot {
 	Gyro *rateGyro;
 	RobotDrive myRobot; // robot drive system
-	Jaguar elevatorMotorA;
-	Jaguar elevatorMotorB;
+	Jaguar *elevatorMotorA;
+	Jaguar *elevatorMotorB;
 	Joystick stick; // only joystick
 	Joystick controlBox;
 	DoubleSolenoid *dsLeft;
@@ -47,8 +47,6 @@ public:
 				FRONT_RIGHT_MOTOR_CHANNEL,
 				REAR_RIGHT_MOTOR_CHANNEL),	// these must be initialized in the same order
 											// as they are declared above.
-		elevatorMotorA(ELEVATOR_MOTOR_CHANNEL_A),
-		elevatorMotorB(ELEVATOR_MOTOR_CHANNEL_B),
 		stick(LEFT_JOYSTICK_USB_PORT),
 		controlBox(CONTROL_BOX_USB_PORT),
 		lw(NULL),
@@ -79,6 +77,8 @@ public:
 
 		elevatorVertPotInput = new AnalogInput(ELEVATOR_VERT_INPUT_CHANNEL);
 		elevatorHorizPotInput = new AnalogInput(ELEVATOR_HORIZ_INPUT_CHANNEL);
+		elevatorMotorA = new Jaguar(ELEVATOR_MOTOR_CHANNEL_A);
+		elevatorMotorB = new Jaguar(ELEVATOR_MOTOR_CHANNEL_B);
 
 		button1 = new JoystickButton(&stick, 1);
 		button2 = new JoystickButton(&stick, 2);
