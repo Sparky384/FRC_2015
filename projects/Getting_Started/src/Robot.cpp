@@ -59,9 +59,9 @@ public:
 		// This code enables the USB Microsoft Camera display.
 		// You must pick "USB Camera HW" on the Driverstation Dashboard
 		// the name of the camera "cam1" can be found in the RoboRio web dashboard
-		CameraServer::GetInstance()->SetQuality(90);
-		CameraServer::GetInstance()->SetSize(2);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+//		CameraServer::GetInstance()->SetQuality(90);
+//		CameraServer::GetInstance()->SetSize(2);
+//		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		compressor = new Compressor();
 		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);
@@ -94,7 +94,7 @@ public:
 private:
 	void RobotInit() {
 		lw = LiveWindow::GetInstance();
-		printf("Team 812 - It's alive! 2015-02-02\n");
+		printf("Team 812 - It's alive! 2015-02-09\n");
 	}
 	void DisabledInit() {
 		printf("Team 812 - DisabledInit\n");
