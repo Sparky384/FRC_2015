@@ -33,6 +33,7 @@ class Robot: public IterativeRobot {
 	float autoDistCounter;
 	float autoMaxDistance;
 	float autoGyroAngle;
+	int autoState;
 	bool b[7];
 	int wiperState = 0;
 
@@ -108,6 +109,7 @@ private:
 		autoDistCounter = 0;
 		autoMaxDistance = 12.0 * 4.0 * 3.14159;  // 12 rotations * 4" diameter wheel * PI
 		autoGyroAngle = 0;
+		autoState = 0;
 		encRight->Reset();
 		encLeft->Reset();
 		rateGyro->Reset();
@@ -123,23 +125,29 @@ private:
 
 	void AutonomousPeriodic() {
 		double robotDriveCurve;
-		if(autoLoopCounter++ < 1000) {
+		if(autoLoopCounter++ < 500) {
 			if(!b[4]) {
 				autoDistCounter = encRight->GetDistance();
 				autoGyroAngle = rateGyro->GetAngle();
 				robotDriveCurve = PwmLimit(-autoGyroAngle * 1.2);
 
-				if (-autoDistCounter <= 24.0 )
+				if (-autoDistCounter <= 24.0 && autoState == 0)
 				{
-					printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, autoMaxDistance);
+					printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, 24.0);
 
 					myRobot.Drive(0.35, robotDriveCurve); // drive forwards half speed
 					Wait(0.02);
 				} else {
-					if (autoGyroAngle > -90.0) {
-						printf("Try turning left\n");
-						myRobot.Drive(0.1, -1.0);
+					autoState = 1;
+					myRobot.Drive(0.0, 0.0);
+				}
+				if (autoState == 1) {
+					if (autoGyroAngle > -90.0 && autoState == 1) {
+						printf("Try turning left, autoGyroAngle = %f\n", autoGyroAngle);
+						myRobot.Drive(-0.2, -1.0);
+						Wait(0.01);
 					} else {
+						autoState = 2;
 						myRobot.Drive(0.0, 0.0); 	// stop robot
 						printf("Robot stopped\n");
 					}
