@@ -16,7 +16,8 @@ class Robot: public IterativeRobot {
 	DoubleSolenoid *dsRight;
 
 	LiveWindow *lw;
-	Relay *relay1;
+	Relay *leftIntakeWheel;
+	Relay *rightIntakeWheel;
 
 	JoystickButton *button1;
 	JoystickButton *button2;
@@ -74,7 +75,8 @@ public:
 								true, Encoder::EncodingType::k4X);
 		encLeft->SetDistancePerPulse(4.0 * 3.14159 / 388.0); // 4" diameter wheel * PI / 360 pulses/rotation
 		encRight->SetDistancePerPulse(4.0 * 3.14159 / 388.0);
-		relay1 = new Relay(1);
+		leftIntakeWheel = new Relay(LEFT_INTAKE_WHEEL_CHANNEL);
+		rightIntakeWheel = new Relay(RIGHT_INTAKE_WHEEL_CHANNEL);
 
 		elevatorVertPotInput = new AnalogInput(ELEVATOR_VERT_INPUT_CHANNEL);
 		elevatorHorizPotInput = new AnalogInput(ELEVATOR_HORIZ_INPUT_CHANNEL);
@@ -181,11 +183,15 @@ private:
 					fabs(currAngle - prevAngle));
 			prevAngle = currAngle;
 		}
+		/* This Code causes the robot to crash due to timeouts as elevatorPot is not instantiated
+		 * 2015-01-10 dano
+
 		currPot = elevatorPot->Get();
 		if (fabs(currPot - prevPot) > 0.01) {
 			printf("pot reading: %f\n", currPot);
 			prevPot = currPot;
 		}
+*/
 
 		currLeftEnc = encLeft->GetDistance();
 		currRightEnc = encRight->GetDistance();
@@ -249,15 +255,19 @@ private:
 			encRight->Reset();
 		}
 		if (stick.GetRawButton(4)) {
-			printf("Button 4 pressed\n");
-			if (relay1->Get() != Relay::kForward) {
-				relay1->Set(Relay::kForward);
-			} else {
-				relay1->Set(Relay::kReverse);
-
-			}
-			Wait(0.05);
-
+			printf("Button 4 pressed - intake wheels forward\n");
+			leftIntakeWheel->Set(Relay::kForward);
+			rightIntakeWheel->Set(Relay::kForward);
+		}
+		if (stick.GetRawButton(5)) {
+			printf("Button 5 pressed - intake wheels reverse\n");
+			leftIntakeWheel->Set(Relay::kReverse);
+			rightIntakeWheel->Set(Relay::kReverse);
+		}
+		if (stick.GetRawButton(6)) {
+			printf("Button 6 pressed - intake wheels off\n");
+			leftIntakeWheel->Set(Relay::kOff);
+			rightIntakeWheel->Set(Relay::kOff);
 		}
 	}
 
