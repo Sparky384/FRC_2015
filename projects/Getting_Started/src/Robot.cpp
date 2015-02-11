@@ -275,10 +275,13 @@ private:
 			leftIntakeWheel->Set(Relay::kOff);
 			rightIntakeWheel->Set(Relay::kOff);
 		}
-/* Manual elevator control */
+/* Manual elevator control
+ * - The Linearize() function is a polynomial that scales the joystick output
+ *   along a predefined curve thus dampening the power at low increments
+ */
 		elevatorPower = PwrLimit(Linearize(rightStick.GetY()),-0.2, 0.4); // Joystick Y position, low limit, high limit
 		swingArmPower = PwrLimit(Linearize(rightStick.GetX()), -0.2, 0.2);
-		printf("Elevator power: %f, Swing arm power: %f\n", elevatorPower, swingArmPower);
+//		printf("Elevator power: %f, Swing arm power: %f\n", elevatorPower, swingArmPower);
 //		printf("Elevator pot = %f\n", elevatorVertPotInput->GetVoltage());
 		elevatorMotorA->Set(elevatorPower);
 		elevatorMotorB->Set(elevatorPower);
