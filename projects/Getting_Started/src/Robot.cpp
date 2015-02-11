@@ -10,7 +10,9 @@ class Robot: public IterativeRobot {
 	RobotDrive myRobot; // robot drive system
 	Jaguar *elevatorMotorA;
 	Jaguar *elevatorMotorB;
-	Joystick stick; // only joystick
+	Jaguar *swingArmMotor;
+	Joystick leftStick;
+	Joystick rightStick;
 	Joystick controlBox;
 	DoubleSolenoid *dsLeft;
 	DoubleSolenoid *dsRight;
@@ -27,6 +29,7 @@ class Robot: public IterativeRobot {
 	ElevatorController *elevatorController;
 
 	int autoLoopCounter;
+	int teleLoopCounter;
 	float prevAngle;
 	float prevPot;
 	float prevLeftEnc;
@@ -49,7 +52,8 @@ public:
 				FRONT_RIGHT_MOTOR_CHANNEL,
 				REAR_RIGHT_MOTOR_CHANNEL),	// these must be initialized in the same order
 											// as they are declared above.
-		stick(LEFT_JOYSTICK_USB_PORT),
+		leftStick(LEFT_JOYSTICK_USB_PORT),
+		rightStick(RIGHT_JOYSTICK_USB_PORT),
 		controlBox(CONTROL_BOX_USB_PORT),
 		lw(NULL),
 		autoLoopCounter(0)
@@ -82,9 +86,10 @@ public:
 		elevatorHorizPotInput = new AnalogInput(ELEVATOR_HORIZ_INPUT_CHANNEL);
 		elevatorMotorA = new Jaguar(ELEVATOR_MOTOR_CHANNEL_A);
 		elevatorMotorB = new Jaguar(ELEVATOR_MOTOR_CHANNEL_B);
+		swingArmMotor  = new Jaguar(SWING_ARM_MOTOR_CHANNEL);
 
-		button1 = new JoystickButton(&stick, 1);
-		button2 = new JoystickButton(&stick, 2);
+		button1 = new JoystickButton(&leftStick, 1);
+		button2 = new JoystickButton(&leftStick, 2);
 
 		//button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
@@ -131,7 +136,7 @@ private:
 			if(!b[4]) {
 				autoDistCounter = encRight->GetDistance();
 				autoGyroAngle = rateGyro->GetAngle();
-				robotDriveCurve = PwmLimit(-autoGyroAngle * 1.2);
+				robotDriveCurve = PwrLimit(-autoGyroAngle * 1.2, -1.0, 1.0);
 
 				if (-autoDistCounter <= 24.0 && autoState == 0)
 				{
@@ -174,8 +179,9 @@ private:
 		float currLeftEnc;
 		float currRightEnc;
 		float currPot;
+		double elevatorPower, swingArmPower;
 
-		myRobot.ArcadeDrive(stick); // drive with arcade style (use right stick)
+		myRobot.ArcadeDrive(leftStick); // drive with arcade style (use right stick)
 
 		currAngle = rateGyro->GetAngle();
 		if (fabs(currAngle - prevAngle) > 0.10) {
@@ -250,25 +256,34 @@ private:
 			printf("Uh oh Button problem!\n");
 			wiperState = 0;
 		}
-		if (stick.GetRawButton(10)) {
+		if (leftStick.GetRawButton(10)) {
 			encLeft->Reset();
 			encRight->Reset();
 		}
-		if (stick.GetRawButton(4)) {
+		if (leftStick.GetRawButton(4)) {
 			printf("Button 4 pressed - intake wheels forward\n");
 			leftIntakeWheel->Set(Relay::kForward);
 			rightIntakeWheel->Set(Relay::kForward);
 		}
-		if (stick.GetRawButton(5)) {
+		if (leftStick.GetRawButton(5)) {
 			printf("Button 5 pressed - intake wheels reverse\n");
 			leftIntakeWheel->Set(Relay::kReverse);
 			rightIntakeWheel->Set(Relay::kReverse);
 		}
-		if (stick.GetRawButton(6)) {
+		if (leftStick.GetRawButton(6)) {
 			printf("Button 6 pressed - intake wheels off\n");
 			leftIntakeWheel->Set(Relay::kOff);
 			rightIntakeWheel->Set(Relay::kOff);
 		}
+/* Manual elevator control */
+		elevatorPower = PwrLimit(Linearize(rightStick.GetY()),-0.2, 0.4); // Joystick Y position, low limit, high limit
+		swingArmPower = PwrLimit(Linearize(rightStick.GetX()), -0.2, 0.2);
+		printf("Elevator power: %f, Swing arm power: %f\n", elevatorPower, swingArmPower);
+//		printf("Elevator pot = %f\n", elevatorVertPotInput->GetVoltage());
+		elevatorMotorA->Set(elevatorPower);
+		elevatorMotorB->Set(elevatorPower);
+		swingArmMotor->Set(swingArmPower);
+
 	}
 
 	void TestPeriodic() {
