@@ -181,7 +181,7 @@ private:
 		float currPot;
 		double elevatorPower, swingArmPower;
 
-		myRobot.ArcadeDrive(PwrLimit(Linearize( rightStick.GetY()),-0.6, 0.6),
+		myRobot.ArcadeDrive(PwrLimit(Linearize( rightStick.GetY()),-0.8, 0.8),
 							PwrLimit(Linearize(-rightStick.GetX()),-0.65, 0.65)); // drive with arcade style (use right stick)
 
 		currAngle = rateGyro->GetAngle();
