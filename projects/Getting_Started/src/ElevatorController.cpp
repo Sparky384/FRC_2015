@@ -80,7 +80,7 @@ void ElevatorController::gotoVertDistance(float distance){
 
 	run();
 
-/// this code block perfoms a blocking operation, likely not the best control scheme
+/// this code block performs a blocking operation, likely not the best control scheme
 /// a better control scheme is to set a value that is used to calculate error in
 /// a looping fashion
 
