@@ -54,9 +54,9 @@ private:
 	float horizScaleFactor; // the full angle the horizontal arm can sweep through, e.g. -25deg to 25deg = scaleFactor of 50
 	float horizOffset;
 
+	// use atomic variables here to avoid possible threading issues
 	atomic<float> targetDistance;
 	atomic<float> targetAngle;
-
 };
 
 #endif /* SRC_ELEVATORCONTROLLER_H_ */

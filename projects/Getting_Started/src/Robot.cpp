@@ -288,6 +288,11 @@ private:
 		elevatorMotorB->Set(elevatorPower);
 		swingArmMotor->Set(-swingArmPower);
 
+		// if integration of the ElevatorController class is desired call the following
+		// function to periodically check the elevator height/angle and update the motor
+		// controls accordingly
+		// elevatorController->run();
+
 	}
 
 	void TestPeriodic() {
