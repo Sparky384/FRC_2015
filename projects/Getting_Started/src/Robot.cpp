@@ -102,7 +102,7 @@ public:
 private:
 	void RobotInit() {
 		lw = LiveWindow::GetInstance();
-		printf("Team 812 - It's alive! 2015-02-09\n");
+		printf("Team 812 - It's alive! 2015-02-12\n");
 	}
 	void DisabledInit() {
 		printf("Team 812 - DisabledInit\n");
@@ -181,7 +181,8 @@ private:
 		float currPot;
 		double elevatorPower, swingArmPower;
 
-		myRobot.ArcadeDrive(rightStick); // drive with arcade style (use right stick)
+		myRobot.ArcadeDrive(PwrLimit(Linearize( rightStick.GetY()),-0.6, 0.6),
+							PwrLimit(Linearize(-rightStick.GetX()),-0.65, 0.65)); // drive with arcade style (use right stick)
 
 		currAngle = rateGyro->GetAngle();
 		if (fabs(currAngle - prevAngle) > 0.10) {
