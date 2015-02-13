@@ -11,8 +11,8 @@ class Robot: public IterativeRobot {
 	Jaguar *elevatorMotorA;
 	Jaguar *elevatorMotorB;
 	Jaguar *swingArmMotor;
-	Joystick leftStick;
 	Joystick rightStick;
+	Joystick leftStick;
 	Joystick controlBox;
 	DoubleSolenoid *dsLeft;
 	DoubleSolenoid *dsRight;
@@ -52,8 +52,8 @@ public:
 				FRONT_RIGHT_MOTOR_CHANNEL,
 				REAR_RIGHT_MOTOR_CHANNEL),	// these must be initialized in the same order
 											// as they are declared above.
-		leftStick(LEFT_JOYSTICK_USB_PORT),
-		rightStick(RIGHT_JOYSTICK_USB_PORT),
+		rightStick(LEFT_JOYSTICK_USB_PORT),
+		leftStick(RIGHT_JOYSTICK_USB_PORT),
 		controlBox(CONTROL_BOX_USB_PORT),
 		lw(NULL),
 		autoLoopCounter(0)
@@ -65,9 +65,9 @@ public:
 		// This code enables the USB Microsoft Camera display.
 		// You must pick "USB Camera HW" on the Driverstation Dashboard
 		// the name of the camera "cam1" can be found in the RoboRio web dashboard
-//		CameraServer::GetInstance()->SetQuality(90);
-//		CameraServer::GetInstance()->SetSize(2);
-//		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+		CameraServer::GetInstance()->SetQuality(90);
+		CameraServer::GetInstance()->SetSize(2);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		compressor = new Compressor();
 		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);
@@ -88,8 +88,8 @@ public:
 		elevatorMotorB = new Jaguar(ELEVATOR_MOTOR_CHANNEL_B);
 		swingArmMotor  = new Jaguar(SWING_ARM_MOTOR_CHANNEL);
 
-		button1 = new JoystickButton(&leftStick, 1);
-		button2 = new JoystickButton(&leftStick, 2);
+		button1 = new JoystickButton(&rightStick, 1);
+		button2 = new JoystickButton(&rightStick, 2);
 
 		//button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
@@ -181,7 +181,7 @@ private:
 		float currPot;
 		double elevatorPower, swingArmPower;
 
-		myRobot.ArcadeDrive(leftStick); // drive with arcade style (use right stick)
+		myRobot.ArcadeDrive(rightStick); // drive with arcade style (use right stick)
 
 		currAngle = rateGyro->GetAngle();
 		if (fabs(currAngle - prevAngle) > 0.10) {
@@ -256,21 +256,21 @@ private:
 			printf("Uh oh Button problem!\n");
 			wiperState = 0;
 		}
-		if (leftStick.GetRawButton(10)) {
+		if (rightStick.GetRawButton(10)) {
 			encLeft->Reset();
 			encRight->Reset();
 		}
-		if (leftStick.GetRawButton(4)) {
+		if (rightStick.GetRawButton(4)) {
 			printf("Button 4 pressed - intake wheels forward\n");
 			leftIntakeWheel->Set(Relay::kForward);
 			rightIntakeWheel->Set(Relay::kForward);
 		}
-		if (leftStick.GetRawButton(5)) {
+		if (rightStick.GetRawButton(5)) {
 			printf("Button 5 pressed - intake wheels reverse\n");
 			leftIntakeWheel->Set(Relay::kReverse);
 			rightIntakeWheel->Set(Relay::kReverse);
 		}
-		if (leftStick.GetRawButton(6)) {
+		if (rightStick.GetRawButton(6)) {
 			printf("Button 6 pressed - intake wheels off\n");
 			leftIntakeWheel->Set(Relay::kOff);
 			rightIntakeWheel->Set(Relay::kOff);
@@ -279,13 +279,13 @@ private:
  * - The Linearize() function is a polynomial that scales the joystick output
  *   along a predefined curve thus dampening the power at low increments
  */
-		elevatorPower = PwrLimit(Linearize(rightStick.GetY()),-0.2, 0.4); // Joystick Y position, low limit, high limit
-		swingArmPower = PwrLimit(Linearize(rightStick.GetX()), -0.2, 0.2);
+		elevatorPower = PwrLimit(Linearize(leftStick.GetY()),-0.2, 0.5); // Joystick Y position, low limit, high limit
+		swingArmPower = PwrLimit(Linearize(leftStick.GetX()), -0.3, 0.3);
 //		printf("Elevator power: %f, Swing arm power: %f\n", elevatorPower, swingArmPower);
 //		printf("Elevator pot = %f\n", elevatorVertPotInput->GetVoltage());
 		elevatorMotorA->Set(elevatorPower);
 		elevatorMotorB->Set(elevatorPower);
-		swingArmMotor->Set(swingArmPower);
+		swingArmMotor->Set(-swingArmPower);
 
 	}
 
