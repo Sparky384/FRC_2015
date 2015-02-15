@@ -8,6 +8,9 @@
 #ifndef ROBOTDEFINITIONS_H_
 #define ROBOTDEFINITIONS_H_
 
+// camera
+  static constexpr char const *kCameraName = "cam1";
+
 // location of configuration file with key/value pairs
 #define CONFIG_FILE_LOCATION "/home/lvuser/config.txt" // use this path when deploying to the robot
 

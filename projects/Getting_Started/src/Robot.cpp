@@ -4,6 +4,7 @@
 #include "Utilities.h"
 #include "RobotDefinitions.h"
 #include "ElevatorController.h"
+#include "DerivedCameraServer.h"
 
 class Robot: public IterativeRobot {
 	Gyro *rateGyro;
@@ -18,6 +19,9 @@ class Robot: public IterativeRobot {
 	DoubleSolenoid *dsRight;
 
 	LiveWindow *lw;
+	USBCamera *camera;
+	CameraServer *cameraServer;
+
 	Relay *leftIntakeWheel;
 	Relay *rightIntakeWheel;
 
@@ -65,9 +69,15 @@ public:
 		// This code enables the USB Microsoft Camera display.
 		// You must pick "USB Camera HW" on the Driverstation Dashboard
 		// the name of the camera "cam1" can be found in the RoboRio web dashboard
-		CameraServer::GetInstance()->SetQuality(90);
-		CameraServer::GetInstance()->SetSize(2);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+//		CameraServer::GetInstance()->SetQuality(90);
+//		CameraServer::GetInstance()->SetSize(2);
+//		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+//		CameraServer::GetInstance()->m_camera->SetExposureAuto();
+		DerivedCameraServer *cameraServer = DerivedCameraServer::GetInstance();
+		cameraServer->SetQuality(90);
+		cameraServer->SetSize(2);
+		cameraServer->StartAutomaticCapture("cam1");
+		cameraServer->setExposureAuto();
 
 		compressor = new Compressor();
 		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);

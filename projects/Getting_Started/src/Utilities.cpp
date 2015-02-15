@@ -29,7 +29,7 @@ double Linearize( double x )
 	const double linearCoeffB = -5.9762;
 	const double linearCoeffC =  2.5895;
 	const double linearCoeffD = -0.0869;
-	const double linearCoeffE =  0.0913;
+	const double linearCoeffE =  0.0; // 0.0913;
 
 	if (fabs(x) < 0.01) {
 		x = 0.0;
