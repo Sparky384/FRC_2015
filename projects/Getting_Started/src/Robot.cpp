@@ -32,6 +32,9 @@ class Robot: public IterativeRobot {
 	AnalogInput *elevatorHorizPotInput;
 	ElevatorController *elevatorController;
 
+//	PIDController *elevatorPidController_0;
+//	PIDController *elevatorPidController_1;
+
 	int autoLoopCounter;
 	int teleLoopCounter;
 	float prevAngle;
@@ -105,8 +108,12 @@ public:
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
 
 		// fill in horizontal relay variable when available
-		elevatorController = new ElevatorController(elevatorVertPotInput, elevatorHorizPotInput,
-													elevatorMotorA, elevatorMotorB, (Relay*)NULL);
+//		elevatorController = new ElevatorController(elevatorVertPotInput, elevatorHorizPotInput,
+//													elevatorMotorA, elevatorMotorB, (Relay*)NULL);
+//		AnalogPotentiometer *vertPot = new AnalogPotentiometer(elevatorVertPotInput, 4.0, 0.0);
+//		elevatorPidController_0 = new PIDController(0.5, 0.0, 0.0, vertPot, elevatorMotorA);
+//		elevatorPidController_1 = new PIDController(0.5, 0.0, 0.0, vertPot, elevatorMotorB);
+
 	}
 
 private:
@@ -182,6 +189,10 @@ private:
 		encRight->Reset();
 		encLeft->Reset();
 		rateGyro->Reset();
+//		elevatorPidController_0->Enable();
+//		elevatorPidController_0->SetSetpoint(1.0);
+//		elevatorPidController_1->Enable();
+//		elevatorPidController_1->SetSetpoint(1.0);
 	}
 
 	void TeleopPeriodic() {
@@ -193,6 +204,25 @@ private:
 
 		myRobot.ArcadeDrive(PwrLimit(Linearize( rightStick.GetY()),-0.8, 0.8),
 							PwrLimit(Linearize(-rightStick.GetX()),-0.65, 0.65)); // drive with arcade style (use right stick)
+
+//		if(leftStick.GetRawButton(4)){
+//			float setpoint = elevatorPidController_0->GetSetpoint();
+//			setpoint -= 0.1;
+//			if(setpoint < 0.0){
+//				setpoint = 0.0;
+//			}
+//			elevatorPidController_0->SetSetpoint(setpoint);
+//			elevatorPidController_1->SetSetpoint(setpoint);
+//		}
+//		if(leftStick.GetRawButton(5)){
+//			float setpoint = elevatorPidController_0->GetSetpoint();
+//			setpoint += 0.1;
+//			if(setpoint > 4.0){
+//				setpoint = 4.0;
+//			}
+//			elevatorPidController_0->SetSetpoint(setpoint);
+//			elevatorPidController_1->SetSetpoint(setpoint);
+//		}
 
 		currAngle = rateGyro->GetAngle();
 		if (fabs(currAngle - prevAngle) > 0.10) {
