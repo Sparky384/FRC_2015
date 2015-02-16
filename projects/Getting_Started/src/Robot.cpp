@@ -90,8 +90,8 @@ public:
 								false, Encoder::EncodingType::k4X);
 		encRight = new Encoder(RIGHT_WHEEL_ENCODER_CHANNEL_A, RIGHT_WHEEL_ENCODER_CHANNEL_B,
 								true, Encoder::EncodingType::k4X);
-		encLeft->SetDistancePerPulse(4.0 * 3.14159 / 388.0); // 4" diameter wheel * PI / 360 pulses/rotation
-		encRight->SetDistancePerPulse(4.0 * 3.14159 / 388.0);
+		encLeft->SetDistancePerPulse(4.0 * 3.14159 / 360.0); // 4" diameter wheel * PI / 360 pulses/rotation
+		encRight->SetDistancePerPulse(4.0 * 3.14159 / 360.0);
 		leftIntakeWheel = new Relay(LEFT_INTAKE_WHEEL_CHANNEL);
 		rightIntakeWheel = new Relay(RIGHT_INTAKE_WHEEL_CHANNEL);
 
@@ -151,31 +151,60 @@ private:
 		double robotDriveCurve;
 		if(autoLoopCounter++ < 500) {
 			if(!b[4]) {
-				autoDistCounter = encRight->GetDistance();
-				autoGyroAngle = rateGyro->GetAngle();
-				robotDriveCurve = PwrLimit(-autoGyroAngle * 1.2, -1.0, 1.0);
 
-				if (-autoDistCounter <= 24.0 && autoState == 0)
-				{
-					printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, 24.0);
-
-					myRobot.Drive(0.35, robotDriveCurve); // drive forwards half speed
-					Wait(0.02);
-				} else {
+				if( autoState == 0 ) {	// make sure the elevator is down
+					elevatorMotorA->Set(-0.3);
+					elevatorMotorB->Set(-0.3);
+					Wait(0.3);
+					elevatorMotorA->Set(0.0);
+					elevatorMotorB->Set(0.0);
 					autoState = 1;
-					myRobot.Drive(0.0, 0.0);
 				}
-				if (autoState == 1) {
-					if (autoGyroAngle > -90.0 && autoState == 1) {
-						printf("Try turning left, autoGyroAngle = %f\n", autoGyroAngle);
-						myRobot.Drive(-0.2, -1.0);
-						Wait(0.01);
+				if( autoState == 1) { // drive the robot into the box a bit
+					myRobot.Drive(-0.3,0.0);
+					Wait(0.5);
+					autoState = 2;
+				}
+				if( autoState == 2) { // pick up the box
+					elevatorMotorA->Set(0.5);
+					elevatorMotorB->Set(0.5);
+					Wait(0.2);
+					myRobot.Drive(0.0, 0.0); // stop driving forward
+					Wait(0.3);
+					elevatorMotorA->Set(0.1);
+					elevatorMotorB->Set(0.1);
+					autoState = 3;
+					encRight->Reset();
+					encLeft->Reset();
+			//		rateGyro->Reset();
+				}
+				if( autoState == 3) {
+					autoDistCounter = encLeft->GetDistance();
+					autoGyroAngle = rateGyro->GetAngle();
+					robotDriveCurve = PwrLimit(-autoGyroAngle * 1.2, -1.0, 1.0);
+
+					if (-autoDistCounter <= 30.0 && autoState == 3)
+					{
+						printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, -30.0);
+
+						myRobot.Drive(0.35, robotDriveCurve); // drive forwards half speed
+						Wait(0.02);
 					} else {
-						autoState = 2;
-						myRobot.Drive(0.0, 0.0); 	// stop robot
-						printf("Robot stopped\n");
+						myRobot.Drive(0.0, 0.0);
+						autoState = 4;
 					}
 				}
+//				if (autoState == 1) {
+//					if (autoGyroAngle > -90.0 && autoState == 1) {
+//						printf("Try turning left, autoGyroAngle = %f\n", autoGyroAngle);
+//						myRobot.Drive(-0.2, -1.0);
+//						Wait(0.01);
+//					} else {
+//						autoState = 2;
+//						myRobot.Drive(0.0, 0.0); 	// stop robot
+//						printf("Robot stopped\n");
+//					}
+//				}
 			} else {
 				printf("Autonomous mode is OFF\n");
 				Wait(3.0);
