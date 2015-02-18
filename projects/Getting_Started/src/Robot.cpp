@@ -5,6 +5,8 @@
 #include "RobotDefinitions.h"
 #include "ElevatorController.h"
 #include "DerivedCameraServer.h"
+#include <math.h>
+
 
 class Robot: public IterativeRobot {
 	Gyro *rateGyro;
@@ -31,6 +33,8 @@ class Robot: public IterativeRobot {
 	AnalogInput *elevatorVertPotInput;
 	AnalogInput *elevatorHorizPotInput;
 	ElevatorController *elevatorController;
+
+	AnalogPotentiometer *vertPot;
 
 //	PIDController *elevatorPidController_0;
 //	PIDController *elevatorPidController_1;
@@ -81,6 +85,7 @@ public:
 		cameraServer->SetSize(2);
 		cameraServer->StartAutomaticCapture("cam1");
 		cameraServer->setExposureAuto();
+		cameraServer->setWhiteBalanceAuto();
 
 		compressor = new Compressor();
 		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);
@@ -90,8 +95,8 @@ public:
 								false, Encoder::EncodingType::k4X);
 		encRight = new Encoder(RIGHT_WHEEL_ENCODER_CHANNEL_A, RIGHT_WHEEL_ENCODER_CHANNEL_B,
 								true, Encoder::EncodingType::k4X);
-		encLeft->SetDistancePerPulse(4.0 * 3.14159 / 360.0); // 4" diameter wheel * PI / 360 pulses/rotation
-		encRight->SetDistancePerPulse(4.0 * 3.14159 / 360.0);
+		encLeft->SetDistancePerPulse(WHEEL_DIAMETER * M_PI / PULSES_PER_ROTATION); // 4" diameter wheel * PI / 360 pulses/rotation
+		encRight->SetDistancePerPulse(WHEEL_DIAMETER * M_PI / PULSES_PER_ROTATION);
 		leftIntakeWheel = new Relay(LEFT_INTAKE_WHEEL_CHANNEL);
 		rightIntakeWheel = new Relay(RIGHT_INTAKE_WHEEL_CHANNEL);
 
@@ -110,7 +115,11 @@ public:
 		// fill in horizontal relay variable when available
 //		elevatorController = new ElevatorController(elevatorVertPotInput, elevatorHorizPotInput,
 //													elevatorMotorA, elevatorMotorB, (Relay*)NULL);
-//		AnalogPotentiometer *vertPot = new AnalogPotentiometer(elevatorVertPotInput, 4.0, 0.0);
+		// analog input min value: 1.352539
+		// analog input max value: 4.964599
+		// analog range = 3.61206
+		// 0.992130
+		vertPot = new AnalogPotentiometer(elevatorVertPotInput, 5.0, -1.372931);
 //		elevatorPidController_0 = new PIDController(0.5, 0.0, 0.0, vertPot, elevatorMotorA);
 //		elevatorPidController_1 = new PIDController(0.5, 0.0, 0.0, vertPot, elevatorMotorB);
 
@@ -148,20 +157,21 @@ private:
 	}
 
 	void AutonomousPeriodic() {
+
 		double robotDriveCurve;
 		if(autoLoopCounter++ < 500) {
-			if(!b[4]) {
+			if(b[4]==0) {
 
 				if( autoState == 0 ) {	// make sure the elevator is down
-					elevatorMotorA->Set(-0.3);
-					elevatorMotorB->Set(-0.3);
-					Wait(0.3);
+					elevatorMotorA->Set(-0.1);
+					elevatorMotorB->Set(-0.1);
+					Wait(0.5);
 					elevatorMotorA->Set(0.0);
 					elevatorMotorB->Set(0.0);
 					autoState = 1;
 				}
 				if( autoState == 1) { // drive the robot into the box a bit
-					myRobot.Drive(-0.3,0.0);
+					myRobot.Drive(-0.15,0.0);
 					Wait(0.5);
 					autoState = 2;
 				}
@@ -179,15 +189,16 @@ private:
 			//		rateGyro->Reset();
 				}
 				if( autoState == 3) {
-					autoDistCounter = encLeft->GetDistance();
+					autoDistCounter = encRight->GetDistance();
 					autoGyroAngle = rateGyro->GetAngle();
 					robotDriveCurve = PwrLimit(-autoGyroAngle * 1.2, -1.0, 1.0);
 
-					if (-autoDistCounter <= 30.0 && autoState == 3)
+					if (-autoDistCounter <= BACKUP_INCHES && autoState == 3)
 					{
-						printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n", autoDistCounter, robotDriveCurve, autoGyroAngle, -30.0);
+						printf("Distance: %f, Turn direction: %f, Direction error: %f, Goal: %f\n",
+								autoDistCounter, robotDriveCurve, autoGyroAngle, -BACKUP_INCHES);
 
-						myRobot.Drive(0.35, robotDriveCurve); // drive forwards half speed
+						myRobot.Drive(BACKUP_SPEED, robotDriveCurve); // drive forwards half speed
 						Wait(0.02);
 					} else {
 						myRobot.Drive(0.0, 0.0);
@@ -252,6 +263,10 @@ private:
 //			elevatorPidController_0->SetSetpoint(setpoint);
 //			elevatorPidController_1->SetSetpoint(setpoint);
 //		}
+		if(leftStick.GetRawButton(3)){
+			//vertPot = new AnalogPotentiometer(elevatorVertPotInput
+			printf("Analog input: %f, Potentiometer output: %f \n", elevatorVertPotInput->GetVoltage(), vertPot->Get());
+		}
 
 		currAngle = rateGyro->GetAngle();
 		if (fabs(currAngle - prevAngle) > 0.10) {
@@ -329,6 +344,7 @@ private:
 		if (rightStick.GetRawButton(10)) {
 			encLeft->Reset();
 			encRight->Reset();
+			rateGyro->Reset();
 		}
 		if (rightStick.GetRawButton(4)) {
 			printf("Button 4 pressed - intake wheels forward\n");
@@ -345,6 +361,7 @@ private:
 			leftIntakeWheel->Set(Relay::kOff);
 			rightIntakeWheel->Set(Relay::kOff);
 		}
+
 /* Manual elevator control
  * - The Linearize() function is a polynomial that scales the joystick output
  *   along a predefined curve thus dampening the power at low increments

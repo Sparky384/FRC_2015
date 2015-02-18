@@ -14,6 +14,7 @@ public:
 
 	static DerivedCameraServer* GetInstance();
 	void setExposureAuto();
+	void setWhiteBalanceAuto();
 
 private:
 	DerivedCameraServer();

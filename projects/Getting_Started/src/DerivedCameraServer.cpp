@@ -31,3 +31,6 @@ void DerivedCameraServer::setExposureAuto(){
 	this->m_camera->SetExposureAuto();
 }
 
+void DerivedCameraServer::setWhiteBalanceAuto(){
+	this->m_camera->SetWhiteBalanceAuto();
+}
