@@ -19,6 +19,11 @@ class Robot: public IterativeRobot {
 	Joystick controlBox;
 	DoubleSolenoid *dsLeft;
 	DoubleSolenoid *dsRight;
+	DoubleSolenoid *dsGrappler;
+//Camera Servo
+	Servo *camYServo;
+	Servo *camXServo;
+
 
 	LiveWindow *lw;
 	USBCamera *camera;
@@ -51,6 +56,7 @@ class Robot: public IterativeRobot {
 	int autoState;
 	bool b[7];
 	int wiperState = 0;
+	bool grappling = true;
 
 	Compressor *compressor;
 	Encoder *encLeft;
@@ -88,9 +94,11 @@ public:
 		cameraServer->setWhiteBalanceAuto();
 
 		compressor = new Compressor();
-		rateGyro = new Gyro(GYRO_RATE_INPUT_CHANNEL);
-		dsLeft = new DoubleSolenoid(LEFT_WIPER_SOLENOID_FWD_CHANNEL, LEFT_WIPER_SOLENOID_REV_CHANNEL);
-		dsRight = new DoubleSolenoid(RIGHT_WIPER_SOLENOID_FWD_CHANNEL, RIGHT_WIPER_SOLENOID_REV_CHANNEL);
+		rateGyro   = new Gyro(GYRO_RATE_INPUT_CHANNEL);
+		dsLeft     = new DoubleSolenoid(LEFT_WIPER_SOLENOID_FWD_CHANNEL, LEFT_WIPER_SOLENOID_REV_CHANNEL);
+		dsRight    = new DoubleSolenoid(RIGHT_WIPER_SOLENOID_FWD_CHANNEL, RIGHT_WIPER_SOLENOID_REV_CHANNEL);
+		dsGrappler = new DoubleSolenoid(GRAPPLER_SOLENOID_FWD_CHANNEL, GRAPPLER_SOLENOID_REV_CHANNEL);
+
 		encLeft = new Encoder(LEFT_WHEEL_ENCODER_CHANNEL_A, LEFT_WHEEL_ENCODER_CHANNEL_B,
 								false, Encoder::EncodingType::k4X);
 		encRight = new Encoder(RIGHT_WHEEL_ENCODER_CHANNEL_A, RIGHT_WHEEL_ENCODER_CHANNEL_B,
@@ -108,6 +116,10 @@ public:
 
 		button1 = new JoystickButton(&rightStick, 1);
 		button2 = new JoystickButton(&rightStick, 2);
+
+		camYServo = new Servo(9);
+		camXServo = new Servo(8);
+
 
 		//button1->ToggleWhenPressed(new ExtendRightWiper(doubleSolenoid));
 		//button2->ToggleWhenPressed(new RetractRightWiper(doubleSolenoid));
@@ -378,7 +390,33 @@ private:
 		// function to periodically check the elevator height/angle and update the motor
 		// controls accordingly
 		// elevatorController->run();
+//Camera and Servo
+		camXServo->Set( (controlBox.GetX() * 0.5) + 0.5);
 
+		if(b[4]){
+			camYServo->Set(1.0);
+		} else {
+			camYServo->Set(0.0);
+		}
+
+// This handles the grappling solenoids
+// button 3 is the momentary contact switch on the control box
+// This same logic could be used on a joystick button if you wish
+// The default should be with the grappling arms open and the code
+// implements the default state as button 3 not pressed AND grappling = false
+
+		if(b[3] and ! grappling) {
+			dsGrappler->Set(DoubleSolenoid::kForward);
+			grappling = true;
+			Wait(.2);
+			dsGrappler->Set(DoubleSolenoid::kOff);
+		} else if (! b[3] and grappling)
+		{
+			dsGrappler->Set(DoubleSolenoid::kReverse); // Default initial state
+			grappling = false;
+			Wait(.2);
+			dsGrappler->Set(DoubleSolenoid::kOff);
+		}
 	}
 
 	void TestPeriodic() {
